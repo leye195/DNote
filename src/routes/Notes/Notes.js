@@ -4,7 +4,7 @@ import { Query, Mutation } from "react-apollo";
 import { GET_NOTES } from "../../Queries";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faStar } from "@fortawesome/free-solid-svg-icons";
 import gql from "graphql-tag";
 import SideBar from "../../components/SideBar";
 
@@ -18,7 +18,6 @@ const Header = styled.header`
   align-items: center;
   border-bottom: 1px solid #e3e3e3;
   padding-left: 10px;
-  /*border-bottom: 3px solid #5477b770;*/
   box-shadow: 1px 1px 2px 0px #a7a7a7;
   z-index: 1;
   background: #e3e3e3;

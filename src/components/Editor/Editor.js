@@ -6,11 +6,13 @@ import {
 } from "../../routes/Note/Note";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faAlignJustify,
   faAlignCenter,
   faAlignRight,
   faAlignLeft,
   faBold,
   faUnderline,
+  faItalic,
   faCheckCircle,
   faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
@@ -67,10 +69,11 @@ const Editor = ({ id, onSave, title, content }) => {
   const [titleInput, setTitleInput] = useState(title);
   const [contentInput, setContentInput] = useState(content);
   const [selected, setSelected] = useState(null);
-
+  useEffect(() => {
+    contentRef.current.innerHTML = content;
+  }, [content]);
   const onInputChange = useCallback((e) => {
     const { target } = e;
-    //console.log(target);
     if (target.name === "content") {
       //setContentInput(value);
     } else if (target.name === "title") {
@@ -81,33 +84,33 @@ const Editor = ({ id, onSave, title, content }) => {
     const selObj = document.getSelection();
     setSelected(selObj);
   }, []);
+  const onMouseDown = useCallback((e) => {
+    e.preventDefault();
+  }, []);
+  const onAlignJustify = useCallback(() => {
+    document.execCommand("justifyFull");
+  }, []);
   const onAlignLeft = useCallback(() => {
-    document.querySelector(".content").style.textAlign = "left";
-    //contentRef.current.style.textAlign = "left";
+    document.execCommand("justifyLeft");
+    //document.querySelector(".content").style.textAlign = "left";
   }, []);
   const onAlignRight = useCallback(() => {
-    document.querySelector(".content").style.textAlign = "right";
-    //contentRef.current.style.textAlign = "right";
+    //document.querySelector(".content").style.textAlign = "right";
+    document.execCommand("justifyRight");
   }, []);
   const onAlignCenter = useCallback(() => {
-    document.querySelector(".content").style.textAlign = "center";
-    //contentRef.current.style.textAlign = "center";
+    document.execCommand("justifyCenter");
+    //document.querySelector(".content").style.textAlign = "center";
   }, []);
   const onBold = useCallback(() => {
-    /*const b = document.createElement("b");
-    b.innerText = selected;
-    selected.deleteContents();
-    selected.insertNode(b);*/
-    console.log(selected);
-    document.execCommand("bold", false, true);
-  }, [selected]);
-  const onUnderline = useCallback(() => {
-    const target = document.querySelector(".content");
-    if (target.style.textDecoration === "underline")
-      target.style.textDecoration = "none";
-    else target.style.textDecoration = "underline";
+    document.execCommand("bold");
   }, []);
-
+  const onUnderline = useCallback(() => {
+    document.execCommand("underline");
+  }, []);
+  const onItalic = useCallback(() => {
+    document.execCommand("italic");
+  }, []);
   return (
     <>
       <NoteTitleContainer>
@@ -136,11 +139,41 @@ const Editor = ({ id, onSave, title, content }) => {
       </NoteTitleContainer>
       <NoteContentContainer>
         <EditToolContainer>
-          <FontAwesomeIcon icon={faAlignLeft} onClick={onAlignLeft} />
-          <FontAwesomeIcon icon={faAlignCenter} onClick={onAlignCenter} />
-          <FontAwesomeIcon icon={faAlignRight} onClick={onAlignRight} />
-          <FontAwesomeIcon icon={faBold} onClick={onBold} />
-          <FontAwesomeIcon icon={faUnderline} onClick={onUnderline} />
+          <FontAwesomeIcon
+            icon={faAlignLeft}
+            onClick={onAlignLeft}
+            onMouseDown={onMouseDown}
+          />
+          <FontAwesomeIcon
+            icon={faAlignCenter}
+            onClick={onAlignCenter}
+            onMouseDown={onMouseDown}
+          />
+          <FontAwesomeIcon
+            icon={faAlignJustify}
+            onClick={onAlignJustify}
+            onMouseDown={onMouseDown}
+          />
+          <FontAwesomeIcon
+            icon={faAlignRight}
+            onClick={onAlignRight}
+            onMouseDown={onMouseDown}
+          />
+          <FontAwesomeIcon
+            icon={faBold}
+            onClick={onBold}
+            onMouseDown={onMouseDown}
+          />
+          <FontAwesomeIcon
+            icon={faItalic}
+            onClick={onItalic}
+            onMouseDown={onMouseDown}
+          />
+          <FontAwesomeIcon
+            icon={faUnderline}
+            onClick={onUnderline}
+            onMouseDown={onMouseDown}
+          />
         </EditToolContainer>
         <ContentInput
           className="content"
@@ -150,9 +183,7 @@ const Editor = ({ id, onSave, title, content }) => {
           contentEditable={true}
           ref={contentRef}
           suppressContentEditableWarning={true}
-        >
-          {content}
-        </ContentInput>
+        ></ContentInput>
       </NoteContentContainer>
     </>
   );
