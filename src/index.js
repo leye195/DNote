@@ -1,14 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./components/App/App";
+import * as serviceWorker from "./serviceWorker";
+import { ApolloProvider } from "react-apollo";
+import client from "./apollo";
+import GlobalStyle from "./globalStyles";
+import GlobalStyles from "./globalStyles";
 ReactDOM.render(
-  <React.StrictMode>
+  <ApolloProvider client={client}>
+    <GlobalStyles />
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </ApolloProvider>,
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
