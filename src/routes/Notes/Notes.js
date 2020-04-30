@@ -1,10 +1,14 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { Query, Mutation } from "react-apollo";
 import { GET_NOTES } from "../../Queries";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faStar } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTrash,
+  faStar,
+  faSortAmountDown,
+} from "@fortawesome/free-solid-svg-icons";
 import gql from "graphql-tag";
 import SideBar from "../../components/SideBar";
 
@@ -16,6 +20,7 @@ const Header = styled.header`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid #e3e3e3;
   padding-left: 10px;
   box-shadow: 1px 1px 2px 0px #a7a7a7;
@@ -80,7 +85,7 @@ const NoteDeleteContainer = styled.div`
     cursor: pointer;
   }
 `;
-const CreatedDate = styled.p`
+const NoteDate = styled.p`
   font-size: 0.8rem;
 `;
 const FontContainer = styled.div`
@@ -92,7 +97,20 @@ const FontContainer = styled.div`
     color: #ffeb3b;
   }
 `;
-const FilterContainer = styled.div``;
+const FilterContainer = styled.div`
+  position: relative;
+  padding-right: 50px;
+  svg {
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+`;
+const Selection = styled.select`
+  position: absolute;
+  width: 20px;
+  left: 0;
+  opacity: 0;
+`;
 const DELETE_NOTE = gql`
   mutation deleteNote($id: Int!) {
     deleteNote(id: $id) @client {
@@ -102,6 +120,18 @@ const DELETE_NOTE = gql`
 `;
 const Notes = () => {
   const deleteRef = useRef(null);
+  const [selected, setSelected] = useState(0);
+  const onChangeSort = useCallback((e) => {
+    setSelected(parseInt(e.target.value));
+  }, []);
+  const sortNotes = (notes) => {
+    let sortedNotes = notes;
+    if (selected === 0)
+      sortedNotes.sort((x, y) => (x.createdAt > y.createdAt ? -1 : 1));
+    else if (selected === 1)
+      sortedNotes.sort((x, y) => (x.updatedAt > y.updatedAt ? -1 : 1));
+    return sortedNotes;
+  };
   const onDelete = useCallback(
     (id) => (e) => {
       deleteRef.current({ variables: { id } });
@@ -112,7 +142,17 @@ const Notes = () => {
     <>
       <Header>
         <Title>DNotes</Title>
-        <FilterContainer></FilterContainer>
+        <FilterContainer>
+          <FontAwesomeIcon icon={faSortAmountDown} />
+          <Selection onChange={onChangeSort}>
+            <option selected={selected === 0} value={0}>
+              생성 날짜
+            </option>
+            <option selected={selected === 1} value={1}>
+              업데이트 날짜
+            </option>
+          </Selection>
+        </FilterContainer>
       </Header>
       <NotesMain>
         <SideBar />
@@ -122,13 +162,14 @@ const Notes = () => {
               deleteRef.current = deleteNote;
               return (
                 <Query query={GET_NOTES}>
-                  {({ data }) =>
-                    data && data.notes
-                      ? data.notes.map((note) => {
+                  {({ data }) => {
+                    const notes = sortNotes(data && data.notes) || [];
+                    return notes
+                      ? notes.map((note) => {
                           return (
                             <NoteContainer key={note.id}>
                               <NoteDeleteContainer>
-                                <CreatedDate>{note.createdAt}</CreatedDate>
+                                <NoteDate>생성 날짜: {note.createdAt}</NoteDate>
                                 <FontContainer>
                                   <FontAwesomeIcon
                                     icon={faStar}
@@ -143,14 +184,18 @@ const Notes = () => {
                               <Link to={`/note/${note.id}`}>
                                 <Note>
                                   <NoteTitle>{note.title}</NoteTitle>
-                                  <NoteContent>{note.content}</NoteContent>
+                                  <NoteContent
+                                    dangerouslySetInnerHTML={{
+                                      __html: note.content,
+                                    }}
+                                  ></NoteContent>
                                 </Note>
                               </Link>
                             </NoteContainer>
                           );
                         })
-                      : null
-                  }
+                      : null;
+                  }}
                 </Query>
               );
             }}

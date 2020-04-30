@@ -9,7 +9,7 @@ import {
   faCaretSquareLeft,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import MarkDownRenderer from "react-markdown-renderer";
+//import MarkDownRenderer from "react-markdown-renderer";
 import gql from "graphql-tag";
 export const NoteContainer = styled.div``;
 export const NoteTitleContainer = styled.div`
@@ -51,9 +51,13 @@ export const NoteContentContainer = styled.div`
     margin: 0;
   }
 `;
+const NoteContent = styled.div``;
 const FontContainer = styled.div`
   display: flex;
   align-items: center;
+`;
+const NoteDate = styled.p`
+  font-size: 0.8rem;
 `;
 const DELETE_NOTE = gql`
   mutation deleteNote($id: Int!) {
@@ -100,11 +104,11 @@ const Note = (props) => {
                         />
                       </FontContainer>
                     </NoteTitleContainer>
-                    <NoteContentContainer>
-                      <MarkDownRenderer
-                        markdown={data && data.note && data.note.content}
-                      />
-                    </NoteContentContainer>
+                    <NoteContentContainer
+                      dangerouslySetInnerHTML={{
+                        __html: data && data.note && data.note.content,
+                      }}
+                    />
                   </NoteContainer>
                 );
               }}

@@ -6,5 +6,7 @@ export const NOTE_FRAGMENT = gql`
     id
     title
     content
+    createdAt
+    updatedAt
   }
 `;

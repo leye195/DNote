@@ -26,6 +26,7 @@ export const typeDefs = [
         title:String!
         content:String!
         createdAt:String!
+        updatedAt:String!
     }
     `,
 ];
@@ -51,7 +52,8 @@ export const resolvers = {
         id: notes.length + 1,
         title: variables.title,
         content: variables.content,
-        createdAt: moment().format("YYYY-MM-DD HH:MM:SS"),
+        createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        updatedAt: variables.updatedAt,
       };
       cache.writeData({
         data: {
@@ -71,6 +73,7 @@ export const resolvers = {
         ...note,
         title: variables.title,
         content: variables.content,
+        updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       };
       cache.writeFragment({
         id: noteId,
