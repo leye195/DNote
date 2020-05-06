@@ -96,6 +96,9 @@ const FontContainer = styled.div`
   .fav:hover {
     color: #ffeb3b;
   }
+  svg.liked {
+    color: #ffeb3b;
+  }
 `;
 const FilterContainer = styled.div`
   position: relative;
@@ -103,11 +106,15 @@ const FilterContainer = styled.div`
   svg {
     font-size: 1.2rem;
     cursor: pointer;
+    border-style: solid;
+    padding: 3px;
+    border-radius: 10px;
   }
 `;
 const Selection = styled.select`
   position: absolute;
-  width: 20px;
+  width: 30px;
+  height: 30px;
   left: 0;
   opacity: 0;
 `;
@@ -118,9 +125,18 @@ const DELETE_NOTE = gql`
     }
   }
 `;
+const FAV_NOTE = gql`
+  mutation favNote($id: Int!) {
+    favNote(id: $id) @client {
+      id
+    }
+  }
+`;
 const Notes = () => {
   const deleteRef = useRef(null);
+  const favRef = useRef(null);
   const [selected, setSelected] = useState(0);
+  const [type, setType] = useState(0);
   const onChangeSort = useCallback((e) => {
     setSelected(parseInt(e.target.value));
   }, []);
@@ -135,6 +151,18 @@ const Notes = () => {
   const onDelete = useCallback(
     (id) => (e) => {
       deleteRef.current({ variables: { id } });
+    },
+    []
+  );
+  const onFav = useCallback(
+    (id) => (e) => {
+      favRef.current({ variables: { id } });
+    },
+    []
+  );
+  const handleType = useCallback(
+    (type) => (e) => {
+      setType(type);
     },
     []
   );
@@ -155,48 +183,66 @@ const Notes = () => {
         </FilterContainer>
       </Header>
       <NotesMain>
-        <SideBar />
+        <SideBar handleType={handleType} type={type} />
         <NotesSection>
-          <Mutation mutation={DELETE_NOTE}>
-            {(deleteNote) => {
-              deleteRef.current = deleteNote;
+          <Mutation mutation={FAV_NOTE}>
+            {(favNote) => {
+              favRef.current = favNote;
               return (
-                <Query query={GET_NOTES}>
-                  {({ data }) => {
-                    const notes = sortNotes(data && data.notes) || [];
-                    return notes
-                      ? notes.map((note) => {
-                          return (
-                            <NoteContainer key={note.id}>
-                              <NoteDeleteContainer>
-                                <NoteDate>생성 날짜: {note.createdAt}</NoteDate>
-                                <FontContainer>
-                                  <FontAwesomeIcon
-                                    icon={faStar}
-                                    className="fav"
-                                  />
-                                  <FontAwesomeIcon
-                                    icon={faTrash}
-                                    onClick={onDelete(note.id)}
-                                  />
-                                </FontContainer>
-                              </NoteDeleteContainer>
-                              <Link to={`/note/${note.id}`}>
-                                <Note>
-                                  <NoteTitle>{note.title}</NoteTitle>
-                                  <NoteContent
-                                    dangerouslySetInnerHTML={{
-                                      __html: note.content,
-                                    }}
-                                  ></NoteContent>
-                                </Note>
-                              </Link>
-                            </NoteContainer>
-                          );
-                        })
-                      : null;
+                <Mutation mutation={DELETE_NOTE}>
+                  {(deleteNote) => {
+                    deleteRef.current = deleteNote;
+                    //favRef.current = favNote;
+                    return (
+                      <Query query={GET_NOTES}>
+                        {({ data }) => {
+                          const notes =
+                            type === 0
+                              ? sortNotes(data && data.notes) || []
+                              : (sortNotes(data && data.notes) || []).filter(
+                                  (note) => note.fav === true
+                                );
+                          return notes
+                            ? notes.map((note) => {
+                                return (
+                                  <NoteContainer key={note.id}>
+                                    <NoteDeleteContainer>
+                                      <NoteDate>
+                                        생성 날짜: {note.createdAt}
+                                      </NoteDate>
+                                      <FontContainer>
+                                        <FontAwesomeIcon
+                                          icon={faStar}
+                                          className={`fav ${
+                                            note.fav ? "liked" : ""
+                                          }`}
+                                          onClick={onFav(note.id)}
+                                        />
+                                        <FontAwesomeIcon
+                                          icon={faTrash}
+                                          onClick={onDelete(note.id)}
+                                        />
+                                      </FontContainer>
+                                    </NoteDeleteContainer>
+                                    <Link to={`/note/${note.id}`}>
+                                      <Note>
+                                        <NoteTitle>{note.title}</NoteTitle>
+                                        <NoteContent
+                                          dangerouslySetInnerHTML={{
+                                            __html: note.content,
+                                          }}
+                                        ></NoteContent>
+                                      </Note>
+                                    </Link>
+                                  </NoteContainer>
+                                );
+                              })
+                            : null;
+                        }}
+                      </Query>
+                    );
                   }}
-                </Query>
+                </Mutation>
               );
             }}
           </Mutation>

@@ -1,7 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faStar } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlus,
+  faStar,
+  faStickyNote,
+} from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 const SideContainer = styled.aside`
   width: 50px;
@@ -29,15 +33,28 @@ const ButtonContainer = styled.div`
     background: #1daf02;
     border-radius: 50%;
   }
+  .active {
+    width: 80%;
+    background: #adadad6e;
+  }
 `;
-const SideBar = () => {
+const SideBar = ({ type, handleType }) => {
   return (
     <SideContainer>
       <ButtonContainer>
         <Link to={"/add"}>
           <FontAwesomeIcon icon={faPlus} className={"add"} />
         </Link>
-        <FontAwesomeIcon icon={faStar} className={"fav"} />
+        <FontAwesomeIcon
+          icon={faStickyNote}
+          className={`notes ${type === 0 ? "active" : ""}`}
+          onClick={handleType(0)}
+        />
+        <FontAwesomeIcon
+          icon={faStar}
+          className={`fav ${type === 1 ? "active" : ""}`}
+          onClick={handleType(1)}
+        />
       </ButtonContainer>
     </SideContainer>
   );

@@ -9,6 +9,7 @@ export const GET_NOTES = gql`
       content
       createdAt
       updatedAt
+      fav
     }
   }
 `;

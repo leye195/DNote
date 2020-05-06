@@ -20,6 +20,7 @@ export const typeDefs = [
         createNote(title:String!, content:String!): Note
         editNote(id:Int!, title:String, content:String) :Note
         deleteNote(id:Int!):Note
+        favNote(id:Int!):Note
     }
     type Note{
         id:Int!
@@ -27,6 +28,7 @@ export const typeDefs = [
         content:String!
         createdAt:String!
         updatedAt:String!
+        fav:Boolean!
     }
     `,
 ];
@@ -54,6 +56,7 @@ export const resolvers = {
         content: variables.content,
         createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
         updatedAt: variables.updatedAt,
+        fav: false,
       };
       cache.writeData({
         data: {
@@ -93,6 +96,24 @@ export const resolvers = {
       });
       saveNotes(cache);
       return filteredNotes;
+    },
+    favNote: (_, { id }, { cache }) => {
+      const noteId = cache.config.dataIdFromObject({
+        __typename: "Note",
+        id,
+      });
+      const note = cache.readFragment({ fragment: NOTE_FRAGMENT, id: noteId });
+      const updatedNote = {
+        ...note,
+        fav: !note.fav,
+      };
+      cache.writeFragment({
+        id: noteId,
+        fragment: NOTE_FRAGMENT,
+        data: updatedNote,
+      });
+      saveNotes(cache);
+      return updatedNote;
     },
   },
 };

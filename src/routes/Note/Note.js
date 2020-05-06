@@ -51,13 +51,18 @@ export const NoteContentContainer = styled.div`
     margin: 0;
   }
 `;
-const NoteContent = styled.div``;
+const NoteUpdated = styled.span`
+  margin: 10px;
+  font-size: 0.8rem;
+  color: #616161c2;
+  font-weight: 800;
+  &:hover {
+    color: black;
+  }
+`;
 const FontContainer = styled.div`
   display: flex;
   align-items: center;
-`;
-const NoteDate = styled.p`
-  font-size: 0.8rem;
 `;
 const DELETE_NOTE = gql`
   mutation deleteNote($id: Int!) {
@@ -95,6 +100,9 @@ const Note = (props) => {
                         {data && data.note && data.note.title}
                       </NoteTitle>
                       <FontContainer>
+                        <NoteUpdated>
+                          수정시간: {data && data.note.updatedAt}
+                        </NoteUpdated>
                         <Link to={`/edit/${id}`}>
                           <FontAwesomeIcon icon={faEdit} />
                         </Link>

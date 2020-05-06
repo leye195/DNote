@@ -8,5 +8,6 @@ export const NOTE_FRAGMENT = gql`
     content
     createdAt
     updatedAt
+    fav
   }
 `;
