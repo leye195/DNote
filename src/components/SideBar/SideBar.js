@@ -34,8 +34,17 @@ const ButtonContainer = styled.div`
     border-radius: 50%;
   }
   .active {
+    @keyframes activeAni {
+      from {
+        opacity: 0.3;
+      }
+      to {
+        opacity: 1;
+      }
+    }
     width: 80%;
     background: #adadad6e;
+    animation: activeAni 0.25s ease-out;
   }
 `;
 const SideBar = ({ type, handleType }) => {

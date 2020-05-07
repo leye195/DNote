@@ -31,9 +31,21 @@ const TitleInput = styled(TextareaAutosize)`
     color: #0000007a;
   }
 `;
+const Wrapper = styled.div`
+  position: fixed;
+  width: 100%;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+`;
+const TitleContainer = styled(NoteTitleContainer)`
+  position: relative;
+`;
+
 const EditToolContainer = styled.div`
   display: flex;
   padding: 5px;
+  background-color: #e3e3e3;
   border-bottom: 1px solid #e3e3e3;
   svg {
     padding: 5px;
@@ -65,22 +77,47 @@ const FontContainer = styled.div`
     font-size: 1.2rem;
   }
 `;
-
+const ColorContainer = styled.div`
+  position: fixed;
+  display: flex;
+  top: 43px;
+  right: 10px;
+  background: #e3e3e3;
+  padding: 5px;
+  box-shadow: 1px 1px 4px 1px black;
+  border-radius: 5px;
+`;
+const Color = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 2px;
+  background-color: ${(props) => {
+    return props.color;
+  }};
+`;
+const colorList = [
+  "#ffffff",
+  "#f5f17b",
+  "#3498db",
+  "#2ecc71",
+  "#e74c3c",
+  "#f39c12",
+  "#2c3e50",
+  "#8e44ad",
+];
 const Editor = ({ id, onSave, title, content }) => {
   const contentRef = useRef(null);
   const [titleInput, setTitleInput] = useState(title);
-  //const [contentInput, setContentInput] = useState(content);
   const [selected, setSelected] = useState(null);
+  const [openColor, setOpenColor] = useState(false);
   useEffect(() => {
     contentRef.current.innerHTML = content;
   }, [content]);
   const onInputChange = useCallback((e) => {
     const { target } = e;
-    if (target.name === "content") {
-      //setContentInput(value);
-    } else if (target.name === "title") {
-      setTitleInput(target.value);
-    }
+    if (target.name === "title") setTitleInput(target.value);
   }, []);
   const onSelectRange = useCallback((e) => {
     const selObj = document.getSelection();
@@ -113,36 +150,45 @@ const Editor = ({ id, onSave, title, content }) => {
   const onStrike = useCallback((e) => {
     document.execCommand("strikeThrough");
   }, []);
-  const onEmpasis = useCallback((e) => {
-    document.execCommand("hiliteColor", false, "#f5f17b");
-  }, []);
+  const onEmpasis = useCallback(
+    (e) => {
+      setOpenColor(!openColor);
+    },
+    [openColor]
+  );
+  const onColor = useCallback(
+    (color) => (e) => {
+      document.execCommand("hiliteColor", false, `${color}`);
+    },
+    []
+  );
   return (
     <>
-      <NoteTitleContainer>
-        <TitleInput
-          type="text"
-          name="title"
-          placeholder="Untitled"
-          onChange={onInputChange}
-          value={titleInput}
-        />
-        <FontContainer>
-          <FontAwesomeIcon
-            icon={faCheckCircle}
-            onClick={onSave(titleInput, contentRef.current, id)}
+      <Wrapper>
+        <TitleContainer>
+          <TitleInput
+            type="text"
+            name="title"
+            placeholder="Untitled"
+            onChange={onInputChange}
+            value={titleInput}
           />
-          {id ? (
-            <Link to={`/note/${id}`}>
-              <FontAwesomeIcon icon={faTimesCircle} />
-            </Link>
-          ) : (
-            <Link to={`/`}>
-              <FontAwesomeIcon icon={faTimesCircle} />
-            </Link>
-          )}
-        </FontContainer>
-      </NoteTitleContainer>
-      <NoteContentContainer>
+          <FontContainer>
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              onClick={onSave(titleInput, contentRef.current, id)}
+            />
+            {id ? (
+              <Link to={`/note/${id}`}>
+                <FontAwesomeIcon icon={faTimesCircle} />
+              </Link>
+            ) : (
+              <Link to={`/`}>
+                <FontAwesomeIcon icon={faTimesCircle} />
+              </Link>
+            )}
+          </FontContainer>
+        </TitleContainer>
         <EditToolContainer>
           <FontAwesomeIcon
             icon={faAlignLeft}
@@ -190,6 +236,8 @@ const Editor = ({ id, onSave, title, content }) => {
             onMouseDown={onMouseDown}
           />
         </EditToolContainer>
+      </Wrapper>
+      <NoteContentContainer>
         <ContentInput
           className="content"
           name="content"
@@ -200,6 +248,17 @@ const Editor = ({ id, onSave, title, content }) => {
           suppressContentEditableWarning={true}
         ></ContentInput>
       </NoteContentContainer>
+      {openColor ? (
+        <ColorContainer>
+          {colorList.map((color) => (
+            <Color
+              color={color}
+              onClick={onColor(color)}
+              onMouseDown={onMouseDown}
+            />
+          ))}
+        </ColorContainer>
+      ) : null}
     </>
   );
 };

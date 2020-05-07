@@ -68,11 +68,20 @@ const NoteContent = styled.p`
   white-space: pre;
 `;
 const NoteContainer = styled.div`
+  @keyframes noteAni {
+    from {
+      opacity: 0.3;
+    }
+    to {
+      opacity: 1;
+    }
+  }
   display: flex;
   flex-direction: column;
   background: white;
   margin: 10px;
   box-shadow: 0px 0px 9px 1px #8a8a8a;
+  animation: noteAni 1s ease-out;
 `;
 const NoteDeleteContainer = styled.div`
   display: flex;

@@ -17,9 +17,11 @@ const Edit = (props) => {
   const editNoteRef = useRef(null);
   const onSave = useCallback(
     (title, contentTarget, id = null) => (e) => {
-      const contentText = contentTarget.innerHTML;
-      console.log(contentText);
-      editNoteRef.current({ variables: { title, content: contentText, id } });
+      if (contentTarget) {
+        const contentText = contentTarget.innerHTML;
+        console.log(contentText);
+        editNoteRef.current({ variables: { title, content: contentText, id } });
+      }
       props.history.push("/");
     },
     [props.history]
