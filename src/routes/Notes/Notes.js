@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
+import moment from "moment";
 import { Query, Mutation } from "react-apollo";
 import { GET_NOTES } from "../../Queries";
 import { Link } from "react-router-dom";
@@ -201,16 +202,20 @@ const Notes = () => {
                 <Mutation mutation={DELETE_NOTE}>
                   {(deleteNote) => {
                     deleteRef.current = deleteNote;
-                    //favRef.current = favNote;
                     return (
                       <Query query={GET_NOTES}>
                         {({ data }) => {
+                          const dates = data.notes.map((note) =>
+                            moment(note.createdAt).format("YYYY/MM")
+                          );
+                          console.log(dates);
                           const notes =
                             type === 0
                               ? sortNotes(data && data.notes) || []
                               : (sortNotes(data && data.notes) || []).filter(
                                   (note) => note.fav === true
                                 );
+
                           return notes
                             ? notes.map((note) => {
                                 return (

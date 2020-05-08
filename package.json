@@ -24,7 +24,8 @@
     "react-scripts": "3.4.1",
     "react-textarea-autosize": "^7.1.2",
     "styled-components": "^5.1.0",
-    "styled-reset": "^4.1.4"
+    "styled-reset": "^4.1.4",
+    "uuid": "^8.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

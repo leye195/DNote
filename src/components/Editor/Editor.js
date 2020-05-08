@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from "react";
 import styled from "styled-components";
+import { v4 } from "uuid";
 import {
   NoteTitleContainer,
   NoteContentContainer,
@@ -44,7 +45,9 @@ const TitleContainer = styled(NoteTitleContainer)`
 
 const EditToolContainer = styled.div`
   display: flex;
+  align-items: center;
   padding: 5px;
+  margin: 5px;
   background-color: #e3e3e3;
   border-bottom: 1px solid #e3e3e3;
   svg {
@@ -97,6 +100,13 @@ const Color = styled.div`
     return props.color;
   }};
 `;
+const FontNameSelection = styled.select`
+  font-size: 0.7rem;
+  margin: 5px;
+  background: transparent;
+  border: none;
+  width: 100px;
+`;
 const colorList = [
   "#ffffff",
   "#f5f17b",
@@ -107,10 +117,17 @@ const colorList = [
   "#2c3e50",
   "#8e44ad",
 ];
+const fontName = [
+  "Helvetica Neue",
+  "Courier New",
+  "Driod Sans",
+  "Noto Sans KR",
+];
 const Editor = ({ id, onSave, title, content }) => {
   const contentRef = useRef(null);
   const [titleInput, setTitleInput] = useState(title);
   const [selected, setSelected] = useState(null);
+  const [font, setFont] = useState("Helvetica Neue");
   const [openColor, setOpenColor] = useState(false);
   useEffect(() => {
     contentRef.current.innerHTML = content;
@@ -162,6 +179,22 @@ const Editor = ({ id, onSave, title, content }) => {
     },
     []
   );
+  const onFontNameChange = useCallback((e) => {
+    const {
+      target: { value },
+    } = e;
+    setFont(value);
+    document.execCommand("fontName", false, value);
+  }, []);
+  const onDragStart = useCallback((e) => {
+    console.log("dragStart");
+    e.dataTransfer.setData("text/html", e.target);
+    e.dropEffect = "move";
+    //console.log(e.movementX, e.movementY);
+  }, []);
+  const onDropTextArea = useCallback((e) => {
+    e.preventDefault();
+  }, []);
   return (
     <>
       <Wrapper>
@@ -190,6 +223,13 @@ const Editor = ({ id, onSave, title, content }) => {
           </FontContainer>
         </TitleContainer>
         <EditToolContainer>
+          <FontNameSelection onChange={onFontNameChange}>
+            {fontName.map((font) => (
+              <option key={v4()} value={font}>
+                {font}
+              </option>
+            ))}
+          </FontNameSelection>
           <FontAwesomeIcon
             icon={faAlignLeft}
             onClick={onAlignLeft}
@@ -246,10 +286,11 @@ const Editor = ({ id, onSave, title, content }) => {
           contentEditable={true}
           ref={contentRef}
           suppressContentEditableWarning={true}
+          onDrop={onDropTextArea}
         ></ContentInput>
       </NoteContentContainer>
       {openColor ? (
-        <ColorContainer>
+        <ColorContainer draggable="true" onDragStart={onDragStart}>
           {colorList.map((color) => (
             <Color
               color={color}

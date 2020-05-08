@@ -19,13 +19,18 @@ const Edit = (props) => {
     (title, contentTarget, id = null) => (e) => {
       if (contentTarget) {
         const contentText = contentTarget.innerHTML;
-        console.log(contentText);
+        //console.log(contentText);
         editNoteRef.current({ variables: { title, content: contentText, id } });
       }
       props.history.push("/");
     },
     [props.history]
   );
+  const onDrag = useCallback((e) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/html");
+    console.log(e.pageXOffset, e.pageYOffset);
+  }, []);
   return (
     <>
       <NoteContainer>
